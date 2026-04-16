@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestor Comercial</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="background"></div>
+    <main class="layout">
+      <section class="panel hero">
+        <p class="eyebrow">Frontend</p>
+        <h1>Gestor de acceso y catalogos</h1>
+        <p class="lead">
+          Administra usuarios, clientes y proveedores desde una interfaz unica conectada a una API REST.
+        </p>
+        <div class="credentials">
+          <strong>Usuario inicial:</strong>
+          <span>admin@local.dev / Admin1234</span>
+        </div>
+      </section>
+
+      <section class="panel auth">
+        <div class="tabs">
+          <button class="tab active" data-view="login">Login</button>
+          <button class="tab" data-view="register">Registro</button>
+          <button class="tab" data-view="forgot">Recuperar</button>
+        </div>
+
+        <form id="loginForm" class="form view active">
+          <input name="email" type="email" placeholder="Correo" required />
+          <input name="password" type="password" placeholder="Contrasena" required />
+          <button type="submit">Iniciar sesion</button>
+        </form>
+
+        <form id="registerForm" class="form view">
+          <input name="name" type="text" placeholder="Nombre completo" required />
+          <input name="email" type="email" placeholder="Correo" required />
+          <input name="password" type="password" placeholder="Contrasena" required />
+          <select name="role">
+            <option value="user">Usuario</option>
+            <option value="admin">Administrador</option>
+          </select>
+          <button type="submit">Registrarme</button>
+        </form>
+
+        <form id="forgotForm" class="form view">
+          <input name="email" type="email" placeholder="Correo registrado" required />
+          <button type="submit">Generar token</button>
+        </form>
+
+        <form id="resetForm" class="form">
+          <input name="token" type="text" placeholder="Token de recuperacion" required />
+          <input name="password" type="password" placeholder="Nueva contrasena" required />
+          <button type="submit">Restablecer contrasena</button>
+        </form>
+
+        <div id="message" class="message"></div>
+      </section>
+    </main>
+
+    <section id="dashboard" class="dashboard hidden">
+      <header class="dashboard-header">
+        <div>
+          <p class="eyebrow">Backend</p>
+          <h2>Panel administrativo</h2>
+        </div>
+        <button id="logoutButton" class="secondary">Cerrar sesion</button>
+      </header>
+
+      <div class="dashboard-shell">
+        <aside class="panel dashboard-menu">
+          <p class="eyebrow">Menu</p>
+          <nav id="dashboardMenu" class="menu-list"></nav>
+        </aside>
+        <div id="modulesContainer" class="modules-container"></div>
+      </div>
+    </section>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+  </html>

@@ -1,0 +1,14 @@
+{
+  "name": "auth-crud-platform",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev:backend": "node backend/src/server.js",
+    "dev:frontend": "node frontend/server.js",
+    "test": "node --test backend/tests/**/*.test.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
