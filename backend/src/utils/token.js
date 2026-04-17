@@ -30,7 +30,12 @@ export function verifyAuthToken(token, secret) {
   }
 
   try {
-    return JSON.parse(fromBase64Url(encodedPayload));
+    const payload = JSON.parse(fromBase64Url(encodedPayload));
+    if (payload.exp && payload.exp < Date.now()) {
+      return null;
+    }
+
+    return payload;
   } catch {
     return null;
   }

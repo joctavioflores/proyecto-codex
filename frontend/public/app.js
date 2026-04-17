@@ -10,9 +10,12 @@ import {
   renderModuleForm,
   renderModuleList,
   resetModuleForm,
+  setCurrentUser,
+  setFormPending,
   setMessage,
   showAuthLayout,
-  switchModule
+  switchModule,
+  updateModuleSummary
 } from "./js/ui.js";
 
 renderDashboardShell();
@@ -25,14 +28,23 @@ bindDashboard();
 
 bindAuthForms({
   onAuthenticated: async () => {
+    setCurrentUser(state.currentUser);
     await loadAllModules();
   }
 });
 
 document.querySelector("#logoutButton").addEventListener("click", () => {
   state.authToken = "";
+  state.currentUser = null;
+  setCurrentUser(null);
   showAuthLayout();
-  setMessage("Sesion finalizada.");
+  setMessage("Sesion finalizada.", "info");
+});
+
+window.addEventListener("session:expired", () => {
+  setCurrentUser(null);
+  showAuthLayout();
+  setMessage("La sesion expiro o ya no es valida. Ingresa nuevamente.", "error");
 });
 
 function bindDashboard() {
@@ -58,6 +70,7 @@ function bindModuleForm(moduleKey) {
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    setFormPending(event.currentTarget, true, "Guardando...");
 
     try {
       const payload = formToObject(event.currentTarget);
@@ -69,15 +82,17 @@ function bindModuleForm(moduleKey) {
       resetModuleForm(moduleKey);
       state.pagination[moduleKey].page = 1;
       await loadModule(moduleKey);
-      setMessage(`${definition.singularTitle} guardado correctamente.`);
+      setMessage(`${definition.singularTitle} guardado correctamente.`, "success");
     } catch (error) {
-      setMessage(error.message);
+      setMessage(error.message, "error");
+    } finally {
+      setFormPending(event.currentTarget, false);
     }
   });
 
   form.querySelector('[data-action="cancel-edit"]').addEventListener("click", () => {
     resetModuleForm(moduleKey);
-    setMessage(`Edicion de ${definition.singularTitle.toLowerCase()} cancelada.`);
+    setMessage(`Edicion de ${definition.singularTitle.toLowerCase()} cancelada.`, "info");
   });
 }
 
@@ -100,6 +115,7 @@ async function loadModule(moduleKey) {
     );
 
     state.pagination[moduleKey].page = response.pagination.page;
+    updateModuleSummary(moduleKey, response.pagination);
 
     renderModuleList(
       moduleKey,
@@ -107,14 +123,14 @@ async function loadModule(moduleKey) {
       (item) => {
         populateForm(moduleKey, item);
         switchModule(moduleKey);
-        setMessage(`Editando ${definition.singularTitle.toLowerCase()}: ${item.name}`);
+        setMessage(`Editando ${definition.singularTitle.toLowerCase()}: ${item.name}`, "info");
       },
       async (item) => {
         await request(`/${definition.endpoint}/${item.id}`, "DELETE", undefined, true);
         const currentPage = state.pagination[moduleKey].page;
         state.pagination[moduleKey].page = Math.max(1, currentPage);
         await loadModule(moduleKey);
-        setMessage(`${definition.singularTitle} eliminado correctamente.`);
+        setMessage(`${definition.singularTitle} eliminado correctamente.`, "success");
       },
       async (nextPage) => {
         state.pagination[moduleKey].page = nextPage;
@@ -122,6 +138,6 @@ async function loadModule(moduleKey) {
       }
     );
   } catch (error) {
-    setMessage(error.message);
+    setMessage(error.message, "error");
   }
 }

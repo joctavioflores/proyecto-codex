@@ -2,6 +2,8 @@ import express from "express";
 import { createContactPayloadDto, toContactDto } from "./dtos/contact-dto.js";
 import { createUserPayloadDto, updateUserPayloadDto } from "./dtos/user-dto.js";
 import { authContextMiddleware } from "./middleware/auth-middleware.js";
+import { createRateLimitMiddleware } from "./middleware/rate-limit-middleware.js";
+import { corsMiddleware, securityHeadersMiddleware } from "./middleware/security-middleware.js";
 import { ContactRepository } from "./repositories/contact-repository.js";
 import { PasswordResetTokenRepository } from "./repositories/password-reset-token-repository.js";
 import { UserRepository } from "./repositories/user-repository.js";
@@ -24,7 +26,12 @@ export function createApp(database) {
     userRepository,
     passwordResetTokenRepository,
     tokenSecret: config.tokenSecret,
-    resetTokenTtlMs: config.resetTokenTtlMs
+    resetTokenTtlMs: config.resetTokenTtlMs,
+    authTokenTtlMs: config.authTokenTtlMs
+  });
+  const authRateLimitMiddleware = createRateLimitMiddleware({
+    windowMs: config.authRateLimitWindowMs,
+    maxRequests: config.authRateLimitMaxRequests
   });
 
   const userService = new UserService(userRepository);
@@ -41,25 +48,16 @@ export function createApp(database) {
     inputFields: ["contact", "phone"]
   });
 
-  app.use((request, response, next) => {
-    response.header("Access-Control-Allow-Origin", "*");
-    response.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    response.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-    if (request.method === "OPTIONS") {
-      return response.status(204).send();
-    }
-
-    next();
-  });
-
-  app.use(express.json());
+  app.use(securityHeadersMiddleware);
+  app.use(corsMiddleware(config.allowedOrigins));
+  app.use(express.json({ limit: "10kb" }));
   app.use(authContextMiddleware(config.tokenSecret));
 
   app.get("/api/health", (_request, response) => {
     response.status(200).json({ status: "ok" });
   });
 
-  app.use("/api/auth", createAuthRouter(authService));
+  app.use("/api/auth", authRateLimitMiddleware, createAuthRouter(authService));
   app.use(
     "/api/users",
     createEntityRouter(userService, {

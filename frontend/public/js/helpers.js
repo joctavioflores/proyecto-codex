@@ -19,5 +19,9 @@ export function fieldInputType(name) {
     return "password";
   }
 
+  if (name === "phone") {
+    return "tel";
+  }
+
   return "text";
 }

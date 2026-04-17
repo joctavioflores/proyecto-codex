@@ -9,6 +9,7 @@ export async function createDatabase(fileUrl, options = {}) {
   const filePath = resolveDatabasePath(fileUrl);
 
   if (filePath !== ":memory:") {
+    // Garantiza que el directorio exista antes de abrir SQLite en disco.
     await fs.mkdir(path.dirname(filePath), { recursive: true });
   }
 

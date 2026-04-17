@@ -8,70 +8,123 @@
   </head>
   <body>
     <div class="background"></div>
+    <div id="appFeedback" class="feedback hidden" aria-live="polite"></div>
     <main class="layout">
       <section class="panel hero">
-        <p class="eyebrow">Frontend</p>
-        <h1>Gestor de acceso y catalogos</h1>
-        <p class="lead">
-          Administra usuarios, clientes y proveedores desde una interfaz unica conectada a una API REST.
-        </p>
-        <div class="credentials">
-          <strong>Usuario inicial:</strong>
-          <span>admin@local.dev / Admin1234</span>
+        <div class="hero-copy">
+          <p class="eyebrow">Frontend</p>
+          <h1>Opera catalogos y accesos sin perder contexto</h1>
+          <p class="lead">
+            Una interfaz administrativa enfocada en tareas, con modulos claros, retroalimentacion inmediata y gestion segura de sesiones.
+          </p>
+        </div>
+        <div class="hero-grid">
+          <article class="hero-card">
+            <span class="hero-card-label">Usuario inicial</span>
+            <strong>admin@local.dev</strong>
+            <span>Contrasena: Admin1234</span>
+          </article>
+          <article class="hero-card">
+            <span class="hero-card-label">Buenas practicas</span>
+            <strong>Sesion en memoria</strong>
+            <span>El token no se persiste en almacenamiento local.</span>
+          </article>
+          <article class="hero-card">
+            <span class="hero-card-label">Capacidades</span>
+            <strong>CRUD paginado</strong>
+            <span>Usuarios, clientes y proveedores con panel modular.</span>
+          </article>
         </div>
       </section>
 
       <section class="panel auth">
-        <div class="tabs">
-          <button class="tab active" data-view="login">Login</button>
-          <button class="tab" data-view="register">Registro</button>
-          <button class="tab" data-view="forgot">Recuperar</button>
+        <div class="auth-header">
+          <div>
+            <p class="eyebrow">Acceso</p>
+            <h2>Ingresa al panel</h2>
+          </div>
+          <span class="security-pill">Sesion segura</span>
+        </div>
+
+        <div class="tabs" role="tablist" aria-label="Acciones de acceso">
+          <button class="tab active" data-view="login" type="button">Login</button>
+          <button class="tab" data-view="register" type="button">Registro</button>
+          <button class="tab" data-view="forgot" type="button">Recuperar</button>
         </div>
 
         <form id="loginForm" class="form view active">
-          <input name="email" type="email" placeholder="Correo" required />
-          <input name="password" type="password" placeholder="Contrasena" required />
+          <label class="field">
+            <span>Correo</span>
+            <input name="email" type="email" placeholder="Correo" autocomplete="email" required />
+          </label>
+          <label class="field">
+            <span>Contrasena</span>
+            <input name="password" type="password" placeholder="Contrasena" autocomplete="current-password" minlength="8" required />
+          </label>
           <button type="submit">Iniciar sesion</button>
         </form>
 
         <form id="registerForm" class="form view">
-          <input name="name" type="text" placeholder="Nombre completo" required />
-          <input name="email" type="email" placeholder="Correo" required />
-          <input name="password" type="password" placeholder="Contrasena" required />
-          <select name="role">
-            <option value="user">Usuario</option>
-            <option value="admin">Administrador</option>
-          </select>
+          <label class="field">
+            <span>Nombre completo</span>
+            <input name="name" type="text" placeholder="Nombre completo" autocomplete="name" required />
+          </label>
+          <label class="field">
+            <span>Correo</span>
+            <input name="email" type="email" placeholder="Correo" autocomplete="email" required />
+          </label>
+          <label class="field">
+            <span>Contrasena</span>
+            <input name="password" type="password" placeholder="Contrasena" autocomplete="new-password" minlength="8" required />
+          </label>
+          <label class="field">
+            <span>Rol</span>
+            <select name="role">
+              <option value="user">Usuario</option>
+              <option value="admin">Administrador</option>
+            </select>
+          </label>
           <button type="submit">Registrarme</button>
         </form>
 
         <form id="forgotForm" class="form view">
-          <input name="email" type="email" placeholder="Correo registrado" required />
+          <label class="field">
+            <span>Correo registrado</span>
+            <input name="email" type="email" placeholder="Correo registrado" autocomplete="email" required />
+          </label>
           <button type="submit">Generar token</button>
         </form>
 
         <form id="resetForm" class="form">
-          <input name="token" type="text" placeholder="Token de recuperacion" required />
-          <input name="password" type="password" placeholder="Nueva contrasena" required />
+          <label class="field">
+            <span>Token de recuperacion</span>
+            <input name="token" type="text" placeholder="Token de recuperacion" autocomplete="one-time-code" required />
+          </label>
+          <label class="field">
+            <span>Nueva contrasena</span>
+            <input name="password" type="password" placeholder="Nueva contrasena" autocomplete="new-password" minlength="8" required />
+          </label>
           <button type="submit">Restablecer contrasena</button>
         </form>
-
-        <div id="message" class="message"></div>
       </section>
     </main>
 
     <section id="dashboard" class="dashboard hidden">
       <header class="dashboard-header">
-        <div>
+        <div class="dashboard-title">
           <p class="eyebrow">Backend</p>
           <h2>Panel administrativo</h2>
+          <p id="currentUser" class="session-copy">Sin sesion activa</p>
         </div>
         <button id="logoutButton" class="secondary">Cerrar sesion</button>
       </header>
 
+      <section id="overviewCards" class="overview-grid"></section>
+
       <div class="dashboard-shell">
         <aside class="panel dashboard-menu">
           <p class="eyebrow">Menu</p>
+          <p class="menu-caption">Navega por modulos y supervisa volumen operativo.</p>
           <nav id="dashboardMenu" class="menu-list"></nav>
         </aside>
         <div id="modulesContainer" class="modules-container"></div>

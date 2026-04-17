@@ -8,6 +8,7 @@ import { UserRepository } from "../src/repositories/user-repository.js";
 import { AuthService } from "../src/services/auth-service.js";
 import { CrudService } from "../src/services/crud-service.js";
 import { UserService } from "../src/services/user-service.js";
+import { signAuthToken, verifyAuthToken } from "../src/utils/token.js";
 
 async function createTestContext() {
   const database = await createDatabase(":memory:", { seed: false });
@@ -19,7 +20,8 @@ async function createTestContext() {
       userRepository,
       passwordResetTokenRepository,
       tokenSecret: "test-secret",
-      resetTokenTtlMs: 1000 * 60
+      resetTokenTtlMs: 1000 * 60,
+      authTokenTtlMs: 1000 * 60 * 60
     }),
     userService: new UserService(userRepository),
     clientService: new CrudService({
@@ -173,4 +175,17 @@ test("listados paginados devuelven metadata consistente con SQLite", async () =>
   assert.equal(pageThree.items.length, 2);
   assert.equal(pageThree.pagination.page, 3);
   assert.equal(pageThree.pagination.hasNextPage, false);
+});
+
+test("token expirado ya no es valido", () => {
+  const token = signAuthToken(
+    {
+      sub: "usr_test",
+      exp: Date.now() - 1000
+    },
+    "test-secret"
+  );
+
+  const payload = verifyAuthToken(token, "test-secret");
+  assert.equal(payload, null);
 });

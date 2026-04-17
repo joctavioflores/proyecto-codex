@@ -8,25 +8,8 @@ export function jsonResponse(response, statusCode, payload) {
   response.end(JSON.stringify(payload));
 }
 
-export async function readJsonBody(request) {
-  let body = "";
-  for await (const chunk of request) {
-    body += chunk;
-  }
-
-  if (!body) {
-    return {};
-  }
-
-  return JSON.parse(body);
-}
-
 export function notFound(response) {
   return jsonResponse(response, 404, { message: "Recurso no encontrado." });
-}
-
-export function badRequest(response, message) {
-  return jsonResponse(response, 400, { message });
 }
 
 export function unauthorized(response, message = "No autorizado.") {

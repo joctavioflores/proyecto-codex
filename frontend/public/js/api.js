@@ -14,7 +14,16 @@ export async function request(path, method, body, requiresAuth = false) {
   const data = response.status === 204 ? null : await response.json();
 
   if (!response.ok) {
-    throw new Error(data?.message || "Error en la solicitud.");
+    const error = new Error(data?.message || "Error en la solicitud.");
+    error.status = response.status;
+
+    if (requiresAuth && response.status === 401) {
+      state.authToken = "";
+      state.currentUser = null;
+      window.dispatchEvent(new CustomEvent("session:expired"));
+    }
+
+    throw error;
   }
 
   return data;

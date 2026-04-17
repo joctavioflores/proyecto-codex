@@ -5,11 +5,18 @@ import { generateId, generateRandomToken, hashPassword, verifyPassword } from ".
 import { signAuthToken } from "../utils/token.js";
 
 export class AuthService {
-  constructor({ userRepository, passwordResetTokenRepository, tokenSecret, resetTokenTtlMs }) {
+  constructor({
+    userRepository,
+    passwordResetTokenRepository,
+    tokenSecret,
+    resetTokenTtlMs,
+    authTokenTtlMs
+  }) {
     this.userRepository = userRepository;
     this.passwordResetTokenRepository = passwordResetTokenRepository;
     this.tokenSecret = tokenSecret;
     this.resetTokenTtlMs = resetTokenTtlMs;
+    this.authTokenTtlMs = authTokenTtlMs;
   }
 
   async register(payload) {
@@ -46,7 +53,13 @@ export class AuthService {
     }
 
     const token = signAuthToken(
-      { sub: user.id, email: user.email, role: user.role, issuedAt: Date.now() },
+      {
+        sub: user.id,
+        email: user.email,
+        role: user.role,
+        issuedAt: Date.now(),
+        exp: Date.now() + this.authTokenTtlMs
+      },
       this.tokenSecret
     );
 
